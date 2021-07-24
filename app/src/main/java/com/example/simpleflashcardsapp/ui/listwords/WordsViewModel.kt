@@ -1,4 +1,4 @@
-package com.example.simpleflashcardsapp.ui.flashcards
+package com.example.simpleflashcardsapp.ui.listwords
 
 import androidx.lifecycle.ViewModel
 import com.example.simpleflashcardsapp.data.CardsRepository
@@ -7,12 +7,11 @@ import javax.inject.Inject
 
 
 @HiltViewModel
-class FlashcardsViewModel @Inject constructor(
+class WordsViewModel @Inject constructor(
     private val repository: CardsRepository
 ) : ViewModel() {
 
-    val allCards = repository.cards
-
+    val words  = repository.cards
 
 
 }

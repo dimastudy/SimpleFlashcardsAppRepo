@@ -1,6 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:id="@+id/nav_graph">
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/wordsFragment">
 
+    <fragment
+        android:id="@+id/addingCardsFragment"
+        android:name="com.example.simpleflashcardsapp.ui.addingcards.AddingCardsFragment"
+        android:label="fragment_adding_card"
+        tools:layout="@layout/fragment_adding_card" >
+        <action
+            android:id="@+id/action_addingCardsFragment_to_flashCardsFragment"
+            app:destination="@id/flashCardsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/flashCardsFragment"
+        android:name="com.example.simpleflashcardsapp.ui.flashcards.FlashCardsFragment"
+        android:label="fragment_flash_cards"
+        tools:layout="@layout/fragment_flash_cards" >
+        <action
+            android:id="@+id/action_flashCardsFragment_to_wordsFragment"
+            app:destination="@id/wordsFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/wordsFragment"
+        android:name="com.example.simpleflashcardsapp.ui.listwords.WordsFragment"
+        android:label="fragment_words"
+        tools:layout="@layout/fragment_words" >
+        <action
+            android:id="@+id/action_wordsFragment_to_flashCardsFragment"
+            app:destination="@id/flashCardsFragment" />
+    </fragment>
 </navigation>

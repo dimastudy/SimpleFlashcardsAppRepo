@@ -12,4 +12,7 @@ class CardsRepository @Inject constructor(
         database.cardsDao.insertCard(cardEntity)
     }
 
+    val cards = database.cardsDao.getAllCards()
+
+
 }

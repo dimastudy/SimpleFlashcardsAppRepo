@@ -1,28 +1,31 @@
 package com.example.simpleflashcardsapp.ui.addingcards
 
-import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import android.content.SharedPreferences
+import androidx.lifecycle.*
 import com.example.simpleflashcardsapp.data.CardsRepository
-import com.example.simpleflashcardsapp.database.CardEntity
+import com.example.simpleflashcardsapp.domain.CardDomain
 import com.google.mlkit.common.model.DownloadConditions
 import com.google.mlkit.nl.translate.TranslateLanguage
 import com.google.mlkit.nl.translate.Translation
 import com.google.mlkit.nl.translate.Translator
 import com.google.mlkit.nl.translate.TranslatorOptions
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import javax.inject.Inject
 
-@HiltViewModel
-class AddingViewModel @Inject constructor(
+class AddingViewModel @AssistedInject constructor(
+    @Assisted private val cardDomain: CardDomain?,
+    @Assisted private var isTranslatorDownloaded: Boolean,
     private val repository: CardsRepository
 ) : ViewModel() {
+
+    private val _wordCardDomain = MutableLiveData<CardDomain?>()
+    val wordCardDomain: LiveData<CardDomain?>
+        get() = _wordCardDomain
 
     private val _translatedWord = MutableLiveData<String?>()
     val translatedWord: LiveData<String?>
@@ -37,8 +40,7 @@ class AddingViewModel @Inject constructor(
         get() = _isTranslatorDownloadedListener
 
 
-    private var isTranslatorDownloaded = false
-    private lateinit var russianEnglishTranslator: Translator
+    private var russianEnglishTranslator: Translator? = null
 
 
     private val _isWordAdded = MutableLiveData<Boolean>()
@@ -51,17 +53,34 @@ class AddingViewModel @Inject constructor(
 
     init {
         downloadTranslator()
+        _wordCardDomain.value = cardDomain
         _translatedWord.value = null
         _translationException.value = null
         _isTranslatorDownloadedListener.value = null
+
     }
 
 
-    fun insertWord(word: String, translate: String) {
-        val cardEntity = CardEntity(id = 0, word = word, translatedWord = translate)
+    fun isCardExist(id: Int): Boolean {
+        var exist = false
+        viewModelScope.launch { exist = repository.isCardExist(id) }
+        return exist
+    }
 
-        viewModelScope.launch {
-            repository.insertWordToDatabase(cardEntity)
+
+    fun insertWord(word: String, translate: String, id: Int = 0) {
+        if (id != 0) {
+            if (isCardExist(id)) {
+                val cardDomain = CardDomain(word = word, translatedWord = translate, id = id)
+                viewModelScope.launch {
+                    repository.updateCard(cardDomain)
+                }
+            }
+        } else {
+            val cardDomain = CardDomain(word = word, translatedWord = translate)
+            viewModelScope.launch {
+                repository.insertWordToDatabase(cardDomain)
+            }
         }
     }
 
@@ -71,52 +90,58 @@ class AddingViewModel @Inject constructor(
             .setTargetLanguage(TranslateLanguage.ENGLISH)
             .build()
         russianEnglishTranslator = Translation.getClient(options)
-        var conditions = DownloadConditions.Builder()
-            .requireWifi()
-            .build()
-        viewModelScope.launch {
-            withContext(Dispatchers.IO){
-                russianEnglishTranslator.downloadModelIfNeeded(conditions)
-                    .addOnSuccessListener {
-                        isTranslatorDownloaded = true
-                        _isTranslatorDownloadedListener.value = "Successfully downloaded Translator"
-                    }
-                    .addOnFailureListener { exception ->
-                        isTranslatorDownloaded = false
-                        _isTranslatorDownloadedListener.value = "Translator downloading failed"
-                        Timber.e(exception)
-                    }
+        if (!isTranslatorDownloaded) {
+            var conditions = DownloadConditions.Builder()
+                .requireWifi()
+                .build()
+            viewModelScope.launch {
+                withContext(Dispatchers.IO) {
+                    russianEnglishTranslator!!.downloadModelIfNeeded(conditions)
+                        .addOnSuccessListener {
+                            isTranslatorDownloaded = true
+                            _isTranslatorDownloadedListener.value =
+                                "Successfully downloaded Translator"
+                        }
+                        .addOnFailureListener { exception ->
+                            isTranslatorDownloaded = false
+                            _isTranslatorDownloadedListener.value = "Translator downloading failed"
+                            Timber.e(exception)
+                        }
+                }
             }
         }
     }
 
-    fun translateWord(text: String){
-        if(isTranslatorDownloaded){
-            russianEnglishTranslator.translate(text)
+    fun translateWord(text: String) {
+        if (isTranslatorDownloaded) {
+            russianEnglishTranslator!!.translate(text)
                 .addOnSuccessListener { word ->
                     _translatedWord.value = word
                 }
                 .addOnFailureListener {
                     _translationException.value = it.message.toString()
                 }
-        }
-        else{
-            _translationException.value = "Translator wasn't downloaded!"
+        } else {
+            _translationException.value = "Translator wasn't downloaded, wait a minute"
         }
     }
 
     override fun onCleared() {
         super.onCleared()
-        russianEnglishTranslator.close()
+        if (russianEnglishTranslator != null) {
+            russianEnglishTranslator!!.close()
+        }
     }
 
-    fun translatedWordDone(){
+    fun translatedWordDone() {
         _translatedWord.value = null
     }
-    fun translatingExceptionDone(){
+
+    fun translatingExceptionDone() {
         _translationException.value = null
     }
-    fun translatedListenerDone(){
+
+    fun translatedListenerDone() {
         _isTranslatorDownloadedListener.value = null
     }
 
@@ -135,6 +160,30 @@ class AddingViewModel @Inject constructor(
 
     fun doneNavigatingToFlashCardScreen() {
         _navigateToFlashCards.value = false
+    }
+
+    fun makeCardNull() {
+        _wordCardDomain.value = null
+    }
+
+
+    companion object {
+
+        fun provideFactory(
+            assistedFactory: AssistedFactory,
+            cardDomain: CardDomain?,
+            downloaded: Boolean
+        ): ViewModelProvider.Factory = object : ViewModelProvider.Factory {
+            override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+                return assistedFactory.create(cardDomain, downloaded) as T
+            }
+
+        }
+    }
+
+    @dagger.assisted.AssistedFactory
+    interface AssistedFactory {
+        fun create(cardDomain: CardDomain?, downloaded: Boolean): AddingViewModel
     }
 
 

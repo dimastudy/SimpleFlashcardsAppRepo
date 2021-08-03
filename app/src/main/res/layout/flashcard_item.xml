@@ -1,26 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/card_item"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:layout_gravity="center">
-
-    <!-- <androidx.cardview.widget.CardView
-
-         android:layout_width="300dp"
-         android:layout_height="500dp"
-         android:layout_gravity="center"
-         app:cardCornerRadius="48dp">
- -->
+    android:layout_height="match_parent">
 
     <FrameLayout
         android:background="@drawable/card_background"
         android:id="@+id/card_word"
         android:layout_width="300dp"
         android:layout_height="500dp"
-        android:layout_gravity="center">
+        android:layout_gravity="center_horizontal"
+        android:layout_marginTop="40dp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+       >
 
         <TextView
             android:id="@+id/tv_word"
@@ -35,23 +31,17 @@
     </FrameLayout>
 
 
-    <!--    </androidx.cardview.widget.CardView>-->
-    <!--
-        <androidx.cardview.widget.CardView
-
-            android:layout_width="300dp"
-            android:layout_height="500dp"
-            android:layout_gravity="center"
-            android:alpha="0"
-            app:cardCornerRadius="48dp">-->
-
     <FrameLayout
         android:alpha="0"
         android:background="@drawable/card_background"
         android:id="@+id/card_translated_word"
         android:layout_width="300dp"
         android:layout_height="500dp"
-        android:layout_gravity="center">
+        android:layout_gravity="center_horizontal"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:layout_marginTop="40dp">
 
         <TextView
             android:id="@+id/tv_translated_word"
@@ -63,6 +53,7 @@
             android:textStyle="bold"
             tools:text="Some translated text here" />
     </FrameLayout>
-    <!--    </androidx.cardview.widget.CardView>-->
 
-</FrameLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -5,8 +5,8 @@ import androidx.room.PrimaryKey
 import com.example.simpleflashcardsapp.domain.CardDomain
 
 
-@Entity(tableName = "flashcardsTable")
-data class CardEntity(
+@Entity(tableName = "wordstable")
+data class WordEntity(
     @PrimaryKey(autoGenerate = true)
     var id: Int = 0,
     val word: String,
@@ -14,7 +14,8 @@ data class CardEntity(
     val isLearned: Boolean = false
 )
 
-fun List<CardEntity>.asDomainModel(): List<CardDomain> {
+
+fun List<WordEntity>.asDomainModel(): List<CardDomain> {
     return map {
         CardDomain(
             id = it.id,

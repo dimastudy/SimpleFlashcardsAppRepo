@@ -13,6 +13,14 @@
         <action
             android:id="@+id/action_addingCardsFragment_to_flashCardsFragment"
             app:destination="@id/flashCardsFragment" />
+        <action
+            android:id="@+id/action_addingCardsFragment_to_wordsFragment"
+            app:destination="@id/wordsFragment" />
+        <argument
+            android:name="card"
+            app:argType="com.example.simpleflashcardsapp.domain.CardDomain"
+            app:nullable="true"
+            android:defaultValue="@null" />
     </fragment>
     <fragment
         android:id="@+id/flashCardsFragment"
@@ -20,8 +28,8 @@
         android:label="fragment_flash_cards"
         tools:layout="@layout/fragment_flash_cards" >
         <action
-            android:id="@+id/action_flashCardsFragment_to_wordsFragment"
-            app:destination="@id/wordsFragment" />
+            android:id="@+id/action_flashCardsFragment_to_loginFragment"
+            app:destination="@id/loginFragment" />
     </fragment>
     <fragment
         android:id="@+id/wordsFragment"
@@ -30,6 +38,15 @@
         tools:layout="@layout/fragment_words" >
         <action
             android:id="@+id/action_wordsFragment_to_flashCardsFragment"
-            app:destination="@id/flashCardsFragment" />
+            app:destination="@id/flashCardsFragment"
+            />
+        <action
+            android:id="@+id/action_wordsFragment_to_addingCardsFragment"
+            app:destination="@id/addingCardsFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="com.example.simpleflashcardsapp.ui.login.LoginFragment"
+        android:label="fragment_login"
+        tools:layout="@layout/fragment_login" />
 </navigation>

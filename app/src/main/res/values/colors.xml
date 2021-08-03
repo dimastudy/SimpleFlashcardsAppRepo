@@ -10,5 +10,7 @@
     <color name="back_cards">#D6D6D6</color>
     <color name="bottom_nav_bar">#686868</color>
     <color name="word_card_background">#F9A825</color>
+    <color name="deleting_background">#C62828</color>
+    <color name="learned_background">#2E7D32</color>
 
 </resources>

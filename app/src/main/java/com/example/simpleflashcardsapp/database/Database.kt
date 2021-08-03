@@ -7,35 +7,48 @@ import androidx.room.*
 @Dao
 interface CardsDao {
 
-    @Query("select * from flashcardsTable")
-    fun getAllCards(): LiveData<List<CardEntity>>
+    @Query("select * from wordstable")
+    fun getAllCards(): LiveData<List<WordEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertCard(cardEntity: CardEntity)
+    suspend fun insertCard(cardEntity: WordEntity)
 
     @Delete
-    suspend fun deleteCard(cardEntity: CardEntity)
+    suspend fun deleteCard(cardEntity: WordEntity)
 
+    @Update(entity = WordEntity::class)
+    suspend fun updateCard(cardEntity: WordEntity)
+
+    @Query("select * from wordstable where id = :id")
+    suspend fun isCardExist(id: Int): WordEntity?
+
+    @Query("delete from wordstable")
+    suspend fun clear()
 
 }
 
 
-@Database(entities = [CardEntity::class], version = 1)
-abstract class CardsDatabase : RoomDatabase() {
+@Database(
+    version = 1,
+    entities = [WordEntity::class],
+)
+abstract class WordsDatabase : RoomDatabase() {
     abstract val cardsDao: CardsDao
 }
 
-private lateinit var INSTANCE: CardsDatabase
+private lateinit var INSTANCE: WordsDatabase
 
-fun getDatabase(context: Context): CardsDatabase {
+fun getDatabase(context: Context): WordsDatabase {
     if (!::INSTANCE.isInitialized) {
         INSTANCE = Room.databaseBuilder(
             context.applicationContext,
-            CardsDatabase::class.java,
-            "cardsdatabase"
+            WordsDatabase::class.java,
+            "wordsdatabase"
         )
             .build()
     }
 
     return INSTANCE
 }
+
+

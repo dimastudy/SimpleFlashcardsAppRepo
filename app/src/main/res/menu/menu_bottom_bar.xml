@@ -16,5 +16,9 @@
         android:icon="@drawable/ic_flash_cards"
         android:title="Cards" />
 
+    <item android:id="@+id/loginFragment"
+        android:icon="@drawable/ic_account"
+        android:title="Account"/>
+
 
 </menu>

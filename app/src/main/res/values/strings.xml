@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">SimpleFlashcardsApp</string>
+    <string name="learn_again">Learn Again</string>
 </resources>
